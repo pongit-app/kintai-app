@@ -144,6 +144,29 @@ button.punch:disabled{background:#D3D1C7;color:#8b8a84;box-shadow:none;cursor:de
   font-family:inherit;font-size:11px;width:66px;padding:3px 5px;border:1px solid #D3D1C7;
   border-radius:6px;text-align:right;color:#2C2C2A
 }
+/* ---- バックアップ画面 ---- */
+.bkstat{
+  font-size:12px;text-align:center;padding:9px;border-radius:8px;
+  background:#F1EFE8;color:#5F5E5A;margin-bottom:16px;line-height:1.6
+}
+.bkstat.warn{background:#FDF6E9;color:#854F0B}
+.bksec{border-top:1px solid #EEECE5;padding-top:14px;margin-top:14px}
+.bksec:first-of-type{border-top:none;margin-top:0;padding-top:0}
+.bkttl{font-size:13px;font-weight:600;margin-bottom:9px}
+.bkbtn{
+  display:block;width:100%;padding:12px;margin-bottom:8px;border-radius:10px;
+  border:1px solid #D3D1C7;background:#fff;color:#2C2C2A;font-size:14px;
+  font-family:inherit;cursor:pointer;text-align:center
+}
+.bkbtn.main{background:#0F6E56;border-color:#0F6E56;color:#fff;font-weight:600}
+.bkbtn.file{position:relative;overflow:hidden}
+.bkbtn.file input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:100px}
+.bknote{font-size:11px;color:#888780;line-height:1.6;margin-top:2px}
+#bkText{
+  width:100%;height:64px;padding:9px;border:1px solid #D3D1C7;border-radius:8px;
+  font-family:inherit;font-size:12px;margin-bottom:8px;resize:vertical;
+  background:#fff;color:#2C2C2A
+}
 .toast{
   position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(90px);
   background:#2C2C2A;color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;
@@ -198,6 +221,9 @@ button.punch:disabled{background:#D3D1C7;color:#8b8a84;box-shadow:none;cursor:de
     <button onclick="addManual()">＋ 別の日を入力</button>
     <button onclick="exportCsv()">CSV書き出し</button>
   </div>
+  <div class="foot">
+    <button onclick="openBackup()" id="bkBtn">🛟 バックアップ / 復元</button>
+  </div>
 
   <div class="wage">
     時給 <input type="number" id="wage" value="2250" min="0" step="10" onchange="saveWage()"> 円 ／ 20日締め・25日払い<br>
@@ -228,6 +254,34 @@ button.punch:disabled{background:#D3D1C7;color:#8b8a84;box-shadow:none;cursor:de
       <button class="m-save" onclick="saveModal()">保存</button>
     </div>
     <button class="m-del" id="mDel" onclick="delRecord()">この日の記録を削除</button>
+  </div>
+</div>
+
+<div class="mask" id="bmask" onclick="if(event.target===this)closeBackup()">
+  <div class="modal">
+    <h3>バックアップ / 復元</h3>
+    <div class="bkstat" id="bkStat"></div>
+
+    <div class="bksec">
+      <div class="bkttl">記録を保存する</div>
+      <button class="bkbtn main" onclick="backupFile()">ファイルに保存</button>
+      <button class="bkbtn" onclick="backupCopy()">文字をコピー</button>
+      <div class="bknote">「文字をコピー」はメモアプリに貼り付けて残せます。ファイル保存がうまくいかないときにお使いください。</div>
+    </div>
+
+    <div class="bksec">
+      <div class="bkttl">記録を戻す</div>
+      <label class="bkbtn file">ファイルから復元
+        <input type="file" id="bkFile" accept=".json,application/json" onchange="restoreFile(this)">
+      </label>
+      <textarea id="bkText" placeholder="コピーした文字をここに貼り付け"></textarea>
+      <button class="bkbtn" onclick="restoreText()">貼り付けた文字から復元</button>
+      <div class="bknote">同じ日付の記録は、読み込んだ内容で上書きされます。</div>
+    </div>
+
+    <div class="mbtns">
+      <button class="m-cancel" onclick="closeBackup()">閉じる</button>
+    </div>
   </div>
 </div>
 
@@ -367,6 +421,7 @@ function fillMonths(){
 function render(){
   updateStatus();
   renderAlert();
+  renderBkHint();
   const sel = document.getElementById('ym');
   if(!sel.options.length) fillMonths();
   const pid = sel.value || periodOf(todayKey());
@@ -550,6 +605,121 @@ function exportCsv(){
   a.href = url; a.download = `勤怠_${pid}月25日払い.csv`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+
+/* ---- バックアップ / 復元 ---- */
+const BKEY = 'kintai_lastbackup_v1';
+
+function backupData(){
+  return JSON.stringify({
+    app:'kintai', version:1,
+    exportedAt:new Date().toISOString(),
+    wage:wage, records:recs
+  });
+}
+function markBackup(){
+  store.set(BKEY, new Date().toISOString());
+  showBkStat();
+}
+function showBkStat(){
+  const el = document.getElementById('bkStat');
+  const n  = Object.keys(recs).length;
+  const last = store.get(BKEY);
+  if(!n){ el.className='bkstat'; el.textContent='まだ記録がありません'; return; }
+  if(!last){
+    el.className='bkstat warn';
+    el.innerHTML = `記録 ${n}件<br>まだ一度もバックアップしていません`;
+    return;
+  }
+  const d = new Date(last);
+  const days = Math.floor((Date.now() - d.getTime()) / 86400000);
+  el.className = 'bkstat' + (days >= 30 ? ' warn' : '');
+  el.innerHTML = `記録 ${n}件<br>最後のバックアップ：${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日` +
+                 (days >= 30 ? `（${days}日前）` : '');
+}
+/* 記録が溜まってきたら、ボタンでそっと知らせる */
+function renderBkHint(){
+  const btn = document.getElementById('bkBtn');
+  if(!btn) return;
+  const n = Object.keys(recs).length;
+  const last = store.get(BKEY);
+  const days = last ? Math.floor((Date.now() - new Date(last).getTime()) / 86400000) : 999;
+  const due = n >= 3 && days >= 30;
+  btn.textContent = due ? '🛟 バックアップしましょう' : '🛟 バックアップ / 復元';
+  btn.style.background    = due ? '#FDF6E9' : '';
+  btn.style.borderColor   = due ? '#EF9F27' : '';
+  btn.style.color         = due ? '#854F0B' : '';
+  btn.style.fontWeight    = due ? '600' : '';
+}
+
+function openBackup(){ showBkStat(); document.getElementById('bkText').value=''; document.getElementById('bmask').classList.add('on'); }
+function closeBackup(){ document.getElementById('bmask').classList.remove('on'); }
+
+function backupFile(){
+  if(!Object.keys(recs).length){ alert('保存する記録がありません'); return; }
+  const d = new Date();
+  const name = `勤怠バックアップ_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}.json`;
+  const url = URL.createObjectURL(new Blob([backupData()],{type:'application/json'}));
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  markBackup(); toast('保存しました');
+}
+async function backupCopy(){
+  if(!Object.keys(recs).length){ alert('保存する記録がありません'); return; }
+  const txt = backupData();
+  try{
+    await navigator.clipboard.writeText(txt);
+    markBackup(); toast('コピーしました');
+  }catch(e){
+    const ta = document.getElementById('bkText');
+    ta.value = txt; ta.select();
+    toast('下の欄を長押ししてコピーしてください');
+  }
+}
+
+/* 読み込んだ内容を取り込む（同じ日付は上書き・それ以外は残す） */
+function applyBackup(txt){
+  let data;
+  try{ data = JSON.parse(txt); }
+  catch(e){ alert('バックアップの中身が読み取れませんでした。\nファイルや文字が正しいか確認してください。'); return; }
+
+  const inc = data && data.records;
+  if(!inc || typeof inc !== 'object' || Array.isArray(inc)){
+    alert('このデータは勤怠アプリのバックアップではないようです。'); return;
+  }
+  const keys = Object.keys(inc).filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k));
+  if(!keys.length){ alert('記録が入っていませんでした。'); return; }
+
+  const dup = keys.filter(k=>recs[k]).length;
+  const msg = `${keys.length}件の記録を読み込みます。` +
+              (dup ? `\n\nうち${dup}件は今ある記録と同じ日付です。読み込んだ内容で上書きされます。` : '') +
+              '\n\nよろしいですか？';
+  if(!confirm(msg)) return;
+
+  keys.forEach(k=>{ recs[k] = inc[k]; });
+  if(typeof data.wage === 'number' && data.wage > 0){
+    wage = data.wage;
+    store.set(WKEY, wage);
+    document.getElementById('wage').value = wage;
+  }
+  save(); fillMonths(); render(); showBkStat();
+  closeBackup();
+  toast(`${keys.length}件を復元しました`);
+}
+function restoreFile(input){
+  const f = input.files && input.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = e => { applyBackup(e.target.result); input.value=''; };
+  r.onerror = () => { alert('ファイルを読み込めませんでした。'); input.value=''; };
+  r.readAsText(f);
+}
+function restoreText(){
+  const t = document.getElementById('bkText').value.trim();
+  if(!t){ alert('復元する文字を貼り付けてください。'); return; }
+  applyBackup(t);
 }
 
 /* ---- 時計 ---- */
