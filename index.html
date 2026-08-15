@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="勤怠">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAQAElEQVR4nOydB1wUxxfHh3L03psoAkqxNxS72GOJir2gYCyJETV2o9EEo4ktxvw1kqjYosbeCxoLKioqIk1FFOlF6b3+H6wspzd73EmbPef7uY+fvdm984793Zs37828UdSeOwZRKDjkEYXCARUHhRMqDgonVBwUTqg4KJxQcVA4oeKgcELFQeGEioPCCRUHhRMqDgonVBwUTqg4KJxQcVA4oeKgcELFQeGEioPCCRUHhRMqDgonVBwUTqg4KJxQcVA4oeKgcELFQeGEioPCCRUHhRMqDgonVBwUTqg4KJxQcVA4oeKgcKKIPleUFQWWeobGWjraquqaKqoVDzVoz8rPzcrPg0d6bnZSVvrL5AT0ufIZiaOVeROnps27WtvbGpub6+jrqKlL+MK03Oy49HdBMa99wwKvhQdlFeShzwM5ma/s49q+66h2XbvbOmooq6Da4FZEKKjkzJN7b1JTkEwjs+Joa2k9vVv/4W0615YmRAlPiPENf3L80Z2g2NdIFpFBcbRp1HTVkHF97Fqj+uJq+BOv80eexLxCsoVMiaOleeNVQ8b3c2iLGoJLoY+8zh0JiX+DZAUZEQd4l6uHTpjSxUVeTg41HKVlZXvu+P547lBGXi7iP7Igjq+6D1g5ZLyWiiqSnsz8vKTMtMSMtKTM9ISMVGgx1daD8a2Jtq6xlu6nvSeMbtacPeRz9yriOfwWh5Gmts+0+c7W9pK/JCAq4nLo47uR4fHpqYmZqflFRWIuVhEITLT0zHT04L8Y1KJ9+8Y2SGL8IkI99m5NzspAvIXH4oCIxV73BQYaWtVemZqTde1Z0JXQQN/wwPTcHPSpQOfV36HdAMe2LnZtJAmTvM3OdNu9+U5kOOInfBXHkoGu8KjWw4hOTdl05eSB+9dLSktR7aEorzC5S5+F/UdAME38lfD/rr3w72bfk4iH8E8cSgqKe6bN+6JlR/GXxaa923jlxIF714tLS1DdIFBQcHPu+12/EabauuKvPBt0f5rP1rr7JHUEz8QBEa0Ts1d0smom5pr4jFSwFvv8rxWV1MfNALFO69pvQb8vwY0Vcxm4IGO9f8ktLED8gU/i0FPXPDtnlaOZJdcFiZlpIIu//C6jegdcV/eu/ef3HW6oqc11DQRSR2xfCw4Q4gm8EQfYjIuea1qaN+G64Mbz4Il/b8hp0J8mJHgPz1jcpakd1wVPY18P/n11dkE+4gMKKk6OiHigdz/9zcp2lpwjyYP3r7vt2VJYUowalILioiMBfo30DLhEDLGTLtb2/z70g3AZIh4eiAOGJAc9FvZq3hJ7FoYDy0/u/fHcYVQzWltYDWvtBJEMeEMIiKFPBe76+eAASOv3bt5KDjeYaqRr0MKs8YlAf0Q8PBDHD8MmTOrcG3sK7PNY7/XHH99FNWPlF+O8p3zb36EtPKZ17asgLw/+I6oBEGqDPBwMqQQKmBkztsZmAnmFWxEhiGxIF8cAx3abRntgT4H7+cW2NQ/fvEQ1A6zFn5O+EW7pauNwKfQxvD+qAZEpCRdDHg5t7aSOmzMAIdeANxGv3yYhgiF6DilYYO9Jc7Cn8goLR+34OTwhBtUYbFBc/GhZQsISYkbtWAsfFXt29xTPagMkDQu54oAo5KGvFmvjotRlZWVTfbaExkej2gBGyBI2fgLBcW/c9/6GPQVf7aDHIviaiFTIFceiASNbmDfGnvK6cASSZ4gnXAx5BBF07Kl2ja3n9R2OSIVQcUDOguuvdubJfYh0IV6x4fLxUxzDE/gNVJugaSgIFcfG0R7KigLR9sDoyOn7fkc8ZMb+P4Jjo0Tb4WuuG+mGiIREcXSzcRjUor1oO4QfRv25rsEjXZ8GfGzXnesSMzAjIIiv9LBtgciDRHH86joN2z738E4eJSZEAXEvOrYbe+rnEVMQeRAnDhf71g6mmNQadCg8ckK5OPv0QXBclGg7uN49mxFnPIgTh6cL3g9ddmIvkglWnj6Abfd0GYYIgyxxWOoZ9rDFRGz/exZ07/VzJBNA9vjOS8zEwT52rRvrGyGSIEscU7r0wbZ/f2o/kiFWnsZ/nXEdeyCSIEscE516iTaeDrofVhthcnJ4HB15IfihaPt4Kg4uIBdlqq0n2r6rIWZ21TV/374i2tjEwLhjE1tEDASJY2zH7qKNmfm5t1+GIZnDLyIEO5+UqJ6FIHEMbdVJtPFKaCAvJk1JS1FJyZWwQNH2QS06IGIgRRxN9I2xidALIQ+RjHIR99XMdPQsdElJtZAijs5Nm4s2lpSW+oYGIhnlYvDDMpxRdLKyQ2RAtDj8XobKcI2lzPy8u6+eibZj/xQNAiniwE7duBj8CMk0F3EDWjHLL+oZUgrGgc8h2hgYE4lkGkgYiTZaGRgjMiDCcigpKGIXyydl1GiKL/kk4tZAGGvpqAgEiACIEEczY3Nse2z6OyTTJFaUixHF2tAUEQAR4jDCLUFOz8up3boJBJJTWJCDWxpppKmDCIAIcWjiVnbUZNkZj0jAdZ2an1RuqtYhQhwauL9Foqw7HAzYpVPqdVY7VSqIEIc63nI0pDggx1E/JSuxvwENKg4WDWWc5WjQbqWJvtHRmUu3T/xaW1UN1SVYy6FBuxVCiOceE03o1DNg+Za+9m1QnUFyWpEIceQWYjx24/ry2P0jn4k5CyOpY7OWeU+eU0cmBPs1c8io7kKEOPDDOS1tVC9EJMfPP/KX+GvGdOheRyYEW0mMiqMKbK2m+hzr77l71fXPdclivRzGhNS6F2JExSGe3AKsOOrJcjBcDX/S8ef5hx7cFH9ZrXshWMtBSNEwIsSB9dglKU1cu2Tk5c4+uL2eTYiemoZoY8MO41mIEEckbh81OTm5ejYeDPVpQky1dbF1w54nxiECIEIcWQV52GB5Q6UY6s2EYPuUuPR3hCwWJyXO8TIFYzzaWjZFDUc9mJA2jaxFG2H0hMiAFHEE4fbAavCp2FKZkOWDpS73O7gl5gsGxZCyYxwp4riL23cCfo4ChYYvmSWhCVk8YNQAx3ZIYlQEgl7NMMVVxQfl6hNSxIFdW6ykqFinoWvJYUzI6J3rU8RurjNQGnH0d2gHX1C03Y+Y+qSkiCMtN/t5EsZFH1zd1hn1iW9YYIe188SYkHfS1JbBVi8KiX+TQ8zOCgQl3i6FYOaaD8b9BRsQMV5IWVnZ/nvXJX4n9EUrjO6vkFSghiBxHH90R7RRX0OrVurF1i6iXggow/OI95t3yRK+g7O1vZYKZgBc81LdtQhBe9k/jYt6lZLY1NDko/ZZPQY9eP0CEQZjQnbcuDDBqZe+huZ+//9uSVMufWbPQaKNUW+Taqvybq1A1nyOfx/dFm0c2c65lYUVIhIQ9NITPl/t2yaVMlqaNxne2km0/Z/qBkT1DFni2Hv3ajFu760NHPUFecrmMdNFG+GL7/P/D5EEWeJIyEg7ijMeTlbNBxHmmX4yQ1t1wlZogS+eSEa+jYW4aYKbOHbZ/Gn4pIbdirxWgK+wFldyFPzZjeTV7CZOHC+TE7BVTWyMzNyc+yKe49Gtv6WeoWg7fOVIXHapYSFxgvGas/9gC1esHjoBu96aL1gbmv4wdIJoO3xZ+MqIPEgUBwznduHqqUFm/N+ZS9SVlBEP0VRWPTF7OXZByl9+l8ksl0jo0oSfzh/OwG0638zYfPfUeYhvyMnJ/fPVImwN2nfZmT+eO4SIhNA93gqKiyDbgh2h2BiZQr7q5gvSd88TBrzp0R26YU8tOrb7UY23qasjyF3UtNf/2s0XwdhTC/qNGIIrPUgmw9t0/rbPUOwpCMMfvH8DkQrRK96m+WzlWmvvPXmOg2kjRDwtzRvDR8Weik9P9di7FREM0eJIzcmaumcL9pSakvKJr1e05NgEjhDg4x2fvQK75RQwefcmSNAggiF9X9nYtLclZWXYrRQ0lFXHdewRnhBDzqRLYQa36HB01jId3O6WwOqz/5wkflNqHuxIfTcy3M7Ewg7XiQgUFCEtV1xaQs7UOoYlA123jJmOnegFnAr0X8qH7WN4IA5UscFRl6Z22KEgjBJ7NmsB6rkY8oiEMlHQiexzX+DetZ8cR7D/1ouQCbs2lvGhZjc/xAF/ytNB9/s5tDHWwm/hDHZlgGNb0FBug86xM9HSPTtnZXdbzj/p09jXX25fW1jMjz0M+SEOVFFJHvTR264VdiEQKl8gpDu5Sx/oYgKiIlBD4OkybJebp5jdlp7GRQ3/n1dWPm9qMvNGHEBeUeHRh7edrR0sdA2wF6gKlFzsWo/r1CMxM/1ZYiyqL0a373ZoxuIv23RWEShxXXP7ZdiI7V6Z+UQPTz5CTnuu1EtxGhYlBUXo1AdWN70jMDpyYd0HH52smm109Whp0UT8ZeeDA9x2bwGrhngFnywHQ0lZ6fHAu+DsdbW2l+Oe4WGqrefWxaWFeZPH0ZHpeTmotoEU645JX68ZNpGrm2MoLStbf+nYgn//5uOuMfyzHCwwSNnn/l21i5jhrjyJeXUt/Mm1Z0EPXr+oyU1SkJd3smoOPZeLfevWFlZy1U0+SsvJnuqzhV9pIGF4LA7AQkcfsp2STz/OzM+DkSSoxDfscWyapLWzrQyM+4Ag7Fp3b+aoqSxpnT8YmIz1/iWBz9VU+S0Ohnkuw1cPmyDtq/KLyhO/8ICkOfQ78CuHA3l5eV01DV11DfhXT12z/FhNQ9oy9eA4r794dOu1M4jnyII4AHMd/Q2u7thF6/XMuacBC4/uIm2q8KchI+Jg6Ny0+fLBY3vYNoyLfeNFsNe5Iw/fNEyUpS6QKXEwgESWDRoD7iqqL248D/Y6L1OyYJBBcTC0b2wzuXNv1/bd6q6OeHZB/pGAWwfu38BuuCQDyKw4WIa3dhrXqSfkO2pLJaAJv4jQww9uQjgfyTSyLw4WiEx0smoG2d1mJuYWOgZcMy1ESc/NiU1/+zwx1v/V83uRz9LzspMzMwip6VanELTKXiogGLVupBsqj3GVTt2zhQlanJmzijEPe+74ipbKaGpoMrVyWdSM/dsgNmWpZwjxTW1VdU0V1YqHWhkqy87Py6p4pOdmJ2Wlx6S+LSguYt8E0jfRv/gIFBRAMWEJ0TBklWoJNb/gqzjUlJTbWb4vxWdlYMKIAzIdzJy8xIw0UXFAz+JoZskcw2VwyyOS46WdRfbHhFlMmTIwPM7W9gUfJt+XDx4zqXNvz8PevmGysFcyn8QBv3IbQ9NXbxNzCvLziwrZdjhmVjoVl5YyC57gxmupqKorq0D+FlyE8IolQ9GpKexLYtLeIumxNTIb2daZfbrr9pX7r58zx82Nzc9++wNTVffozKVnnz5w272Zj/kUYfgkjjEduv80fJJou+98r49aRrTtAg/mGHLlQ7atgQPhKTZ50s8Jgmzwlfk/sfmUl8kJ3x3dxZ4FgQrPQxvaqtOzn3b227zijZAieYfsb8bDrs0XnpknbHgkBBwa3co65RB67//bSuGzIAL7VbO8b11iW8CKPFq5tKhgigAACKFJREFU9QuSCt5JC58sR0LFLqxgq8EJhQNF+fclSotLS5j7Lly0FBrl5eRBGWyFP+EkqvixBhgJiMTHpb9LycqAHgoci297DxHeYv6HMwdbmFmqCJTA9VFVUobMMHi14IXAv1HvkptUTgaDT3hw+sIfzx3e7EtceQVJ4JM4jj26c6yyqFzHJrZsb9J384onFVV/4zbsY5yPE4/vuousF1KUrzKT4mdxTnF22ejqLuaCX0ZNRRKzasg4GyPTrw9uR3yDr6MVsAqsu6en/n7zjYJKzxQSqkwL/HYfLN8MxiO3sKCxflVhjP0e3zE9C6Rh4Rr4xc874s1OG/PHlVOuCRM69TTT0fvyf16IV/AsCGZtaHrRcw10GaWl1Q8EoJc5G3R/evcBSAK+P7X/j+vn2Kdpvx0WM5enrMJ/gQ8Bj/ziwrzCwqz83Mz83PK8f05WclYG9EfQCc7pPaRNo6ra/hARGfbHj4g/8MxymOvoSbUJi+TzgDI+nEo478hfRSXFGXm5MGzOKshjImPZBXlZBfmSLzmBTvDGwvVtGpV/BvBytv13FvEKnokjT8pRRn5xUVJmOjiV4GSYaOuy6RUm9gW9j35lB/TRzll7/a8xBxDXAvMAvVKRlPFygYIihNr8IkJUBAINZdV+W1bwblYYX30OcDj05o1jjtkuADr1GxVVGyCOOcmpd8Vlpc1XzmQuOzxj8UDH9sxrO66dj8rr2LeHRuYsdk0zDHYWDxiFagb8X2Su5q2Wz2jTYUON9/0RawNUlaqWmWThVpSUlpXVfN1iIm+nkfJ3tCL3wsubOWY9Rx/3+cwYlZ2SLoeqnEp9jfc9CNs3CS90zuSohlCG3r9FTmFBrMRB98Z6RuzM0zzpA26EwDNxqCtVzckQ9Ux1VD/OwguHxTQrC9Gz62lVBcKWo5pVijeeP53490YkGbvc5o5q15U5ZkJ2fIRn4oCBg6ihFy5eK5zrkitfi1BlD1hhsXZeTUhqMBJBlA/hmTggTqVb6YeyiDqkooCRYO08m54Vnu+TWZ3lMNDQgigLkgwNiZe3kAzPxLHbzdPZxh66gKKSEtaCsD7H7+NnMr0DtECHoipQvhTycOGx3dDSz6Et+yZPY6OYA3bHE0m8Tier5o++/w1JD4xphacL8QieiaOJgbGJlq4JR5UO0crR3SvnoAvvFXfi8fsEjYbK+25FjDRqXnBdS1VN/M5wxMLX0Yq0dKjcqAB+xFGV+ynpVyZluNa/gzLgejAr5YlfJN2YFgZK8uUGTFGVuy4D4fBMHCtO7utt1wo8yjyhyTVsLceKqVnlezopyMtD2l1XXYMdfEJelDmITElk3w3cCOZATJJ2yLY1bDWYqqkhFT0RpObPfbsaoq4jd6x9jFudAIE4S33DaN7O9+GZOPxfPYNkPXQukAopKi7+6LcMP1NjLR24gQJFRU1lVXj629XT0O7avitohbnmttB8YNYhzfkwds7i0a3/Blf31Jwsb7/L266diduwj2kHuWy/cX6Xmycjl2sL1m69dma1UHF7cHH+GD+Lqc7wLjtr562LiIfwr1tZPngs18rmKV36CD8Fp3XFqfLbOb/vl2zjAaGJx2xcJIOjgMfMHuU7sUEKZulAVxAHWAvG+QW5hMVHp+VmM6kZaJzXd7idqcU471+ZFzo3tWPrdqwf6fYk5hU725RHyH74HO4fO+k8PiP1aVwUe0qrMpCampMt+kJ4FdsZvUpJhAgpa6igU3ueFGe74qtzTwPY6yFT4zvfC2yJorzCmnOH2NWRIJ3T36xkM3w8gn+W41lijJKiILcwnx3NOlvbV56Khd+0XMXtgbwJs/XrxtEe7Gu3Xv2gLAJbWxi75eefk6rKUu+4eQFVxDrl5SpCrhX/LwTcJu3auGbYRE+XYcxl4L0OatFhv8d3dyPDzwUFNDexYOp5gKkD3bTz8kS8gn/i6LVx2UctbBBs6XEfJghmb9qoV7OWFroG7Syt2WnocOe8/aomALPmBAgX2e5kfKeebO1syOb/5XcZcfDDmYNw76ED+vPmxaUnfMAJBePRzcYBHrMPbt82fiYz17WpocnqoRNWE7npDhd8HcqCGhrpGtgam9kYmrFBsD3T5oFRURMoMS0w/hTeyOJU4D3hYNcAx6qSc+ATCL+5ha7+1nEz2Ke/XjqGxLLkuM/GKyeZYIbwFsmXQx9/f2r/+pFTmadgYPb6X3v9NgnxBD6Jw1Rb9/7yLYowTFVUZKeeC8MuHWCAa9jkHAjlcMCtwzMWP0+MgwgpDE/murzf5gIUc/tlGPsq8FJvL9nAjm6gn/pdZAaXs40DGCQYo1aMmMpg5KysqNTZqnlby6ZgcphroNOB14I5mdF9ILOTMkj22Kxl7b14s5kQn8QBbqOWikQ5C3AeIfQkHNxcfGxPYXER+IwDHT+uUZmSnSkcBIMhj3B2192nahY7a3dAc3uq2zAqqtJCTN696c6SDcyxoaYO4g98Egc4DZBtV/twjzf43WcX5oPvCU4l9A63X4b7R4bDaIKd94UqSuvvvuOLKuyHqMnZfv288FPGToCbWb731oObwpm8lOwMM209JBkbrpxgDkLjo29FhPawdYShDdcOIWTCs9nne90XmOvovUiKf5EYF5oQDWoQk7aAzn5Wz0FgRWyWT2dm3Lxet0u46wGt/HP/5tzDO0VfC2m22b0Gf3QvwRc54LHI2shEQ0kFOzcdlFpQXJyclQ7BN0aODDCOBffo3iuehTpkvD7HptEep57c86uMioInYaSlraemCSHU+PR3NZzxCz0X2CFwOCCQDzrj74wvLj6j4i0UafmMJhhTpIWKg8IJFQeFEyoOCidUHBROqDgonFBxUDih4qBwQsVB4YSKg8IJFQeFEyoOCidUHBROqDgonFBxUDih4qBwQsVB4YSKg8IJFQeFEyoOCidUHBROqDgonFBxUDih4qBw8n8AAAD//8al2HgAAAAGSURBVAMA4z3YyIJF9u4AAAAASUVORK5CYII=">
+<meta name="theme-color" content="#0F6E56">
+<title>勤怠管理</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+  background:#F5F4F0;color:#2C2C2A;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:520px;margin:0 auto;padding:16px 16px 40px}
+
+/* ---- ヘッダー ---- */
+.head{text-align:center;padding:8px 0 4px}
+.today{font-size:14px;color:#5F5E5A}
+.clock{font-size:44px;font-weight:600;letter-spacing:1px;font-variant-numeric:tabular-nums;line-height:1.1;margin-top:2px}
+
+/* ---- 状態バッジ ---- */
+.status{
+  margin:12px 0 16px;padding:12px;border-radius:12px;text-align:center;
+  font-size:15px;font-weight:600;border:2px solid;
+}
+.st-off{background:#F1EFE8;border-color:#B4B2A9;color:#5F5E5A}
+.st-work{background:#E1F5EE;border-color:#0F6E56;color:#04342C}
+.st-break{background:#FAEEDA;border-color:#EF9F27;color:#412402}
+.st-done{background:#EEEDFE;border-color:#7F77DD;color:#26215C}
+.status .sub{display:block;font-size:13px;font-weight:400;margin-top:4px;opacity:.85}
+
+/* ---- 打刻ボタン ---- */
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button.punch{
+  border:none;border-radius:16px;padding:26px 8px;font-size:21px;font-weight:700;
+  color:#fff;cursor:pointer;font-family:inherit;
+  box-shadow:0 3px 0 rgba(0,0,0,.16);transition:transform .08s,opacity .15s;
+}
+button.punch:active{transform:translateY(3px);box-shadow:0 0 0 rgba(0,0,0,0)}
+button.punch .cap{display:block;font-size:11px;font-weight:500;opacity:.85;margin-top:4px}
+.b-in{background:#0F6E56}
+.b-bs{background:#BA7517}
+.b-be{background:#185FA5}
+.b-out{background:#993536}
+button.punch:disabled{background:#D3D1C7;color:#8b8a84;box-shadow:none;cursor:default}
+
+/* ---- カード ---- */
+.card{background:#fff;border-radius:14px;padding:16px;margin-top:18px;border:1px solid #E5E3DC}
+.card h2{font-size:15px;font-weight:600;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.mrow{display:flex;align-items:center;gap:8px}
+.mrow select{
+  font-family:inherit;font-size:14px;padding:5px 8px;border:1px solid #D3D1C7;
+  border-radius:8px;background:#fff;color:#2C2C2A
+}
+
+/* ---- 集計 ---- */
+.period{
+  font-size:12px;color:#5F5E5A;background:#F7F6F2;border-radius:8px;
+  padding:8px 10px;margin-bottom:11px;text-align:center;line-height:1.6
+}
+.period b{color:#2C2C2A;font-weight:600}
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sumbox{background:#F7F6F2;border-radius:10px;padding:12px;text-align:center}
+.sumbox .lbl{font-size:11px;color:#5F5E5A}
+.sumbox .val{font-size:22px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+.sumbox.pay{background:#E1F5EE;grid-column:1/-1}
+.sumbox.pay .val{color:#0F6E56;font-size:28px}
+
+/* ---- 記録リスト ---- */
+.day{border-top:1px solid #EEECE5;padding:11px 0}
+.day:first-of-type{border-top:none}
+.day .dhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.day .dt{font-size:14px;font-weight:600}
+.day .dt .wd{font-size:12px;font-weight:400;color:#5F5E5A;margin-left:4px}
+.day .dh{font-size:14px;font-weight:700;color:#0F6E56;font-variant-numeric:tabular-nums;white-space:nowrap}
+.day .dtl{font-size:12px;color:#5F5E5A;margin-top:4px;font-variant-numeric:tabular-nums}
+.day .dbtn{
+  background:none;border:1px solid #D3D1C7;border-radius:7px;font-size:11px;
+  padding:4px 9px;color:#5F5E5A;cursor:pointer;font-family:inherit;margin-top:7px
+}
+.empty{text-align:center;color:#888780;font-size:13px;padding:18px 0}
+
+/* ---- 打刻もれアラート ---- */
+.card.alert{background:#FDF6E9;border-color:#EF9F27}
+.miss{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:9px 0;border-top:1px solid #F3E4C6
+}
+.miss:first-of-type{border-top:none}
+.miss .mtx{font-size:13px;line-height:1.5}
+.miss .mtx b{font-weight:600}
+.miss .msub{font-size:11px;color:#854F0B;display:block;margin-top:2px}
+.miss button{
+  background:#BA7517;border:none;color:#fff;border-radius:8px;font-size:12px;
+  font-weight:600;padding:8px 14px;cursor:pointer;font-family:inherit;flex-shrink:0
+}
+
+/* ---- モーダル内の入力補助 ---- */
+.quick{display:flex;gap:6px;margin:-4px 0 12px 76px;flex-wrap:wrap}
+.quick button{
+  background:#F1EFE8;border:1px solid #E0DED6;border-radius:7px;font-size:11px;
+  padding:5px 10px;color:#5F5E5A;cursor:pointer;font-family:inherit
+}
+.quick button:active{background:#E1F5EE}
+
+/* ---- 編集モーダル ---- */
+.mask{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;
+  align-items:center;justify-content:center;padding:16px
+}
+.mask.on{display:flex}
+.modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:400px;max-height:86vh;overflow-y:auto}
+.modal h3{font-size:16px;margin-bottom:14px}
+.frow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.frow label{font-size:13px;width:66px;color:#5F5E5A;flex-shrink:0}
+.frow input{
+  flex:1;font-family:inherit;font-size:16px;padding:9px;border:1px solid #D3D1C7;
+  border-radius:8px;background:#fff;color:#2C2C2A
+}
+.mbtns{display:flex;gap:9px;margin-top:16px}
+.mbtns button{
+  flex:1;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:600;
+  cursor:pointer;font-family:inherit
+}
+.m-save{background:#0F6E56;color:#fff}
+.m-cancel{background:#F1EFE8;color:#5F5E5A}
+.m-del{background:#FCEBEB;color:#A32D2D;margin-top:9px;width:100%;padding:11px;border:none;border-radius:10px;font-size:13px;font-family:inherit;cursor:pointer}
+.note{font-size:11px;color:#888780;margin-top:10px;line-height:1.6}
+
+/* ---- フッター ---- */
+.foot{display:flex;gap:9px;margin-top:16px}
+.foot button{
+  flex:1;padding:11px;background:#fff;border:1px solid #D3D1C7;border-radius:10px;
+  font-size:12px;color:#5F5E5A;cursor:pointer;font-family:inherit
+}
+.wage{font-size:11px;color:#888780;text-align:center;margin-top:14px;line-height:1.7}
+.wage input{
+  font-family:inherit;font-size:11px;width:66px;padding:3px 5px;border:1px solid #D3D1C7;
+  border-radius:6px;text-align:right;color:#2C2C2A
+}
+.toast{
+  position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(90px);
+  background:#2C2C2A;color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;
+  font-weight:600;z-index:80;transition:transform .28s;pointer-events:none;white-space:nowrap
+}
+.toast.on{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div class="today" id="today"></div>
+    <div class="clock" id="clock">--:--</div>
+  </div>
+
+  <div class="status st-off" id="status">未出勤<span class="sub">出勤ボタンを押してください</span></div>
+
+  <div class="btns">
+    <button class="punch b-in"  id="bIn"  onclick="punch('in')">出勤<span class="cap">START</span></button>
+    <button class="punch b-bs"  id="bBs"  onclick="punch('bs')">休入<span class="cap">BREAK</span></button>
+    <button class="punch b-be"  id="bBe"  onclick="punch('be')">休戻<span class="cap">BACK</span></button>
+    <button class="punch b-out" id="bOut" onclick="punch('out')">退勤<span class="cap">END</span></button>
+  </div>
+
+  <div class="card alert" id="alertCard" style="display:none">
+    <h2><span>⚠️ 打刻もれ</span></h2>
+    <div id="alertList"></div>
+  </div>
+
+  <div class="card">
+    <h2>
+      <span>給与集計</span>
+      <span class="mrow">
+        <select id="ym" onchange="render()"></select>
+      </span>
+    </h2>
+    <div class="period" id="periodInfo"></div>
+    <div class="sum">
+      <div class="sumbox"><div class="lbl">出勤日数</div><div class="val" id="sDays">0</div></div>
+      <div class="sumbox"><div class="lbl">実働時間</div><div class="val" id="sHours">0:00</div></div>
+      <div class="sumbox pay"><div class="lbl" id="payLbl">給与見込み（額面）</div><div class="val" id="sPay">¥0</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span>勤務記録</span></h2>
+    <div id="list"></div>
+  </div>
+
+  <div class="foot">
+    <button onclick="addManual()">＋ 別の日を入力</button>
+    <button onclick="exportCsv()">CSV書き出し</button>
+  </div>
+
+  <div class="wage">
+    時給 <input type="number" id="wage" value="2250" min="0" step="10" onchange="saveWage()"> 円 ／ 20日締め・25日払い<br>
+    休憩は自動で差し引き・1分単位で計算／データはこのスマホの中だけに保存されます
+  </div>
+</div>
+
+<div class="mask" id="mask" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3 id="mTitle">記録を編集</h3>
+    <div class="frow"><label>日付</label><input type="date" id="fDate"></div>
+    <div class="quick">
+      <button onclick="setDate(0)">今日</button>
+      <button onclick="setDate(-1)">昨日</button>
+      <button onclick="setDate(-2)">一昨日</button>
+      <button onclick="fillLast()" id="qLast">前回と同じ時間</button>
+    </div>
+    <div class="frow"><label>出勤</label><input type="time" id="fIn"></div>
+    <div class="frow"><label>休入</label><input type="time" id="fBs"></div>
+    <div class="frow"><label>休戻</label><input type="time" id="fBe"></div>
+    <div class="frow"><label>退勤</label><input type="time" id="fOut"></div>
+    <div class="quick" style="margin-left:0;justify-content:center">
+      <button onclick="clearTimes()">時間をクリア</button>
+    </div>
+    <div class="note">空欄のままでも保存できます。<br>日をまたぐ勤務（例 22:00→翌6:00）にも対応しています。</div>
+    <div class="mbtns">
+      <button class="m-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="m-save" onclick="saveModal()">保存</button>
+    </div>
+    <button class="m-del" id="mDel" onclick="delRecord()">この日の記録を削除</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='kintai_records_v1', WKEY='kintai_wage_v1';
+/* localStorage が使えない環境（プライベートブラウズ等）でも動くようにする */
+const store = {
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); return true; }catch(e){ return false; } }
+};
+let recs = {};
+try { recs = JSON.parse(store.get(KEY) || '{}') || {}; } catch(e) { recs = {}; }
+let wage = Number(store.get(WKEY) || 2250);
+let editKey = null;
+const WD = ['日','月','火','水','木','金','土'];
+
+const save = () => {
+  if(!store.set(KEY, JSON.stringify(recs)) && !save._warned){
+    save._warned = true;
+    toast('※保存できない設定です');
+  }
+};
+const pad = n => String(n).padStart(2,'0');
+const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const nowHM = () => { const d=new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('on'), 1900);
+}
+
+/* 実働分数（休憩を差し引き・日またぎ対応） */
+function workMin(r){
+  if(!r || !r.in || !r.out) return 0;
+  const m = s => { const [h,i] = s.split(':').map(Number); return h*60+i; };
+  let inM = m(r.in), outM = m(r.out);
+  if(outM < inM) outM += 1440;            // 日またぎ
+  let total = outM - inM;
+  if(r.bs && r.be){
+    let bs = m(r.bs), be = m(r.be);
+    if(bs < inM) bs += 1440;
+    if(be < bs)  be += 1440;
+    const br = be - bs;
+    if(br > 0 && br < total) total -= br;
+  }
+  return Math.max(0, total);
+}
+const hm = min => `${Math.floor(min/60)}:${pad(min%60)}`;
+const yen = n => '¥' + Math.floor(n).toLocaleString('ja-JP');
+
+/* ===== 締め日ルール：20日締め・25日払い =====
+   例）7/21〜8/20 に働いた分 → 8/25 支払い（＝期間ID '2026-08'） */
+const CLOSE_DAY = 20, PAY_DAY = 25;
+
+/* 日付キー(YYYY-MM-DD) → その日が属する給与期間のID(YYYY-MM) */
+function periodOf(dateKey){
+  const [y, m, d] = dateKey.split('-').map(Number);
+  if(d <= CLOSE_DAY) return `${y}-${pad(m)}`;      // 20日以前 → 当月締め
+  const nm = m === 12 ? 1 : m + 1;                  // 21日以降 → 翌月締め
+  const ny = m === 12 ? y + 1 : y;
+  return `${ny}-${pad(nm)}`;
+}
+/* 期間ID → 開始日・終了日・支給日 */
+function periodRange(pid){
+  const [y, m] = pid.split('-').map(Number);
+  const pm = m === 1 ? 12 : m - 1;
+  const py = m === 1 ? y - 1 : y;
+  return {
+    from: `${py}-${pad(pm)}-${pad(CLOSE_DAY + 1)}`,
+    to:   `${y}-${pad(m)}-${pad(CLOSE_DAY)}`,
+    fromLabel: `${pm}/${CLOSE_DAY + 1}`,
+    toLabel:   `${m}/${CLOSE_DAY}`,
+    payLabel:  `${m}月${PAY_DAY}日`
+  };
+}
+
+/* ---- 打刻 ---- */
+function punch(type){
+  const k = todayKey();
+  const r = recs[k] || {};
+  const t = nowHM();
+  const names = {in:'出勤', bs:'休憩開始', be:'休憩終了', out:'退勤'};
+
+  if(type==='in'  && r.in  && !confirm(`すでに出勤 ${r.in} が記録されています。上書きしますか？`)) return;
+  if(type==='out' && r.out && !confirm(`すでに退勤 ${r.out} が記録されています。上書きしますか？`)) return;
+
+  r[type] = t;
+  recs[k] = r; save(); render();
+  toast(`${names[type]} ${t}`);
+  if(navigator.vibrate) navigator.vibrate(35);
+}
+
+/* ---- 状態表示 ---- */
+function updateStatus(){
+  const r = recs[todayKey()] || {};
+  const el = document.getElementById('status');
+  const set = (cls, main, sub) => {
+    el.className = 'status ' + cls;
+    el.innerHTML = main + '<span class="sub">' + sub + '</span>';
+  };
+  const bIn=document.getElementById('bIn'), bBs=document.getElementById('bBs'),
+        bBe=document.getElementById('bBe'), bOut=document.getElementById('bOut');
+
+  if(r.out){
+    set('st-done','本日の勤務終了', `${r.in||'--:--'} 〜 ${r.out}　実働 ${hm(workMin(r))}`);
+    bIn.disabled=true; bBs.disabled=true; bBe.disabled=true; bOut.disabled=false;
+  } else if(r.bs && !r.be){
+    set('st-break','休憩中', `休憩開始 ${r.bs}`);
+    bIn.disabled=true; bBs.disabled=true; bBe.disabled=false; bOut.disabled=false;
+  } else if(r.in){
+    set('st-work','勤務中', `出勤 ${r.in}` + (r.be ? `　休憩 ${r.bs}〜${r.be}` : ''));
+    bIn.disabled=true; bBs.disabled=false; bBe.disabled=true; bOut.disabled=false;
+  } else {
+    set('st-off','未出勤','出勤ボタンを押してください');
+    bIn.disabled=false; bBs.disabled=true; bBe.disabled=true; bOut.disabled=true;
+  }
+}
+
+/* ---- 給与期間セレクタ ---- */
+function fillMonths(){
+  const sel = document.getElementById('ym');
+  const cur = sel.value;
+  const set = new Set(Object.keys(recs).map(periodOf));
+  set.add(periodOf(todayKey()));
+  const arr = [...set].sort().reverse();
+  sel.innerHTML = arr.map(p=>{
+    const [y,mo] = p.split('-');
+    return `<option value="${p}">${Number(mo)}月${PAY_DAY}日払い</option>`;
+  }).join('');
+  sel.value = (cur && arr.includes(cur)) ? cur : arr[0];
+}
+
+/* ---- 描画 ---- */
+function render(){
+  updateStatus();
+  renderAlert();
+  const sel = document.getElementById('ym');
+  if(!sel.options.length) fillMonths();
+  const pid = sel.value || periodOf(todayKey());
+  const pr  = periodRange(pid);
+
+  const keys = Object.keys(recs).filter(k=>periodOf(k)===pid).sort().reverse();
+  let days=0, mins=0;
+  keys.forEach(k=>{ const m=workMin(recs[k]); if(m>0){days++; mins+=m;} });
+
+  document.getElementById('sDays').textContent  = days;
+  document.getElementById('sHours').textContent = hm(mins);
+  document.getElementById('sPay').textContent   = yen(mins/60*wage);
+  document.getElementById('payLbl').textContent = `${pr.payLabel}の給与見込み（額面）`;
+
+  const isNow = pid === periodOf(todayKey());
+  document.getElementById('periodInfo').innerHTML =
+    `対象期間 <b>${pr.fromLabel} 〜 ${pr.toLabel}</b>（20日締め）` +
+    `<br>支給日 <b>${pr.payLabel}</b>${isNow ? '　※集計中' : ''}`;
+
+  const list = document.getElementById('list');
+  if(!keys.length){ list.innerHTML = '<div class="empty">この期間の記録はまだありません</div>'; return; }
+
+  list.innerHTML = keys.map(k=>{
+    const r = recs[k], d = new Date(k+'T00:00:00'), m = workMin(r);
+    const parts = [];
+    if(r.in)  parts.push('出 '+r.in);
+    if(r.bs)  parts.push('休 '+r.bs);
+    if(r.be)  parts.push('戻 '+r.be);
+    if(r.out) parts.push('退 '+r.out);
+    const inc = (r.in && !r.out) ? '　<span style="color:#BA7517">※退勤未打刻</span>' : '';
+    return `<div class="day">
+      <div class="dhead">
+        <span class="dt">${d.getMonth()+1}/${d.getDate()}<span class="wd">(${WD[d.getDay()]})</span></span>
+        <span class="dh">${m ? hm(m)+'　'+yen(m/60*wage) : '—'}</span>
+      </div>
+      <div class="dtl">${parts.join('　')||'記録なし'}${inc}</div>
+      <button class="dbtn" onclick="openModal('${k}')">修正</button>
+    </div>`;
+  }).join('');
+}
+
+/* ---- 打刻もれの検出 ---- */
+function findMissing(){
+  const today = todayKey();
+  const out = [];
+  Object.keys(recs).sort().reverse().forEach(k=>{
+    if(k >= today) return;            // 今日・未来は「勤務中」なので対象外
+    const r = recs[k];
+    let msg = null;
+    if(r.in && !r.out)      msg = '退勤が入っていません';
+    else if(!r.in && r.out) msg = '出勤が入っていません';
+    else if(r.bs && !r.be)  msg = '休戻が入っていません';
+    if(msg) out.push({key:k, msg});
+  });
+  return out.slice(0, 5);             // 直近5件まで
+}
+function renderAlert(){
+  const miss = findMissing();
+  const card = document.getElementById('alertCard');
+  if(!miss.length){ card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  document.getElementById('alertList').innerHTML = miss.map(m=>{
+    const d = new Date(m.key+'T00:00:00');
+    const r = recs[m.key];
+    const has = [r.in&&'出 '+r.in, r.bs&&'休 '+r.bs, r.be&&'戻 '+r.be, r.out&&'退 '+r.out]
+                .filter(Boolean).join('　');
+    return `<div class="miss">
+      <span class="mtx"><b>${d.getMonth()+1}/${d.getDate()}(${WD[d.getDay()]})</b> ${m.msg}
+        <span class="msub">${has}</span></span>
+      <button onclick="openModal('${m.key}')">入力</button>
+    </div>`;
+  }).join('');
+}
+
+/* ---- 入力補助 ---- */
+function setDate(offset){
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  document.getElementById('fDate').value =
+    `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function lastPattern(){
+  const cur = document.getElementById('fDate').value;
+  /* 出勤・退勤が揃い、休憩も片方だけになっていない日だけをお手本にする */
+  const k = Object.keys(recs).filter(k=>{
+    const r = recs[k];
+    return k !== cur && r.in && r.out && !!r.bs === !!r.be;
+  }).sort().pop();
+  return k ? recs[k] : null;
+}
+function fillLast(){
+  const p = lastPattern();
+  if(!p){ toast('参考にできる記録がありません'); return; }
+  fIn.value  = p.in  || '';
+  fBs.value  = p.bs  || '';
+  fBe.value  = p.be  || '';
+  fOut.value = p.out || '';
+  toast('前回の時間を入れました');
+}
+function clearTimes(){
+  ['fIn','fBs','fBe','fOut'].forEach(id=>document.getElementById(id).value='');
+}
+
+/* ---- 編集 ---- */
+function openModal(k){
+  editKey = k;
+  const r = recs[k] || {};
+  const d = new Date(k+'T00:00:00');
+  document.getElementById('mTitle').textContent =
+    `${d.getMonth()+1}月${d.getDate()}日(${WD[d.getDay()]}) の記録`;
+  document.getElementById('fDate').value = k;
+  document.getElementById('fIn').value  = r.in  || '';
+  document.getElementById('fBs').value  = r.bs  || '';
+  document.getElementById('fBe').value  = r.be  || '';
+  document.getElementById('fOut').value = r.out || '';
+  document.getElementById('mDel').style.display = recs[k] ? 'block' : 'none';
+  document.getElementById('mask').classList.add('on');
+}
+function addManual(){
+  editKey = null;
+  document.getElementById('mTitle').textContent = 'あとから入力';
+  document.getElementById('fDate').value = todayKey();
+  ['fIn','fBs','fBe','fOut'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mDel').style.display = 'none';
+  document.getElementById('mask').classList.add('on');
+}
+function closeModal(){ document.getElementById('mask').classList.remove('on'); }
+
+function saveModal(){
+  const k = document.getElementById('fDate').value;
+  if(!k){ alert('日付を入力してください'); return; }
+  const r = {};
+  const v = id => document.getElementById(id).value;
+  if(v('fIn'))  r.in  = v('fIn');
+  if(v('fBs'))  r.bs  = v('fBs');
+  if(v('fBe'))  r.be  = v('fBe');
+  if(v('fOut')) r.out = v('fOut');
+
+  if(editKey && editKey !== k) delete recs[editKey];
+  if(Object.keys(r).length) recs[k] = r; else delete recs[k];
+
+  save(); fillMonths();
+  document.getElementById('ym').value = periodOf(k);
+  render(); closeModal(); toast('保存しました');
+}
+function delRecord(){
+  if(!editKey || !confirm('この日の記録を削除しますか？')) return;
+  delete recs[editKey]; save(); fillMonths(); render(); closeModal(); toast('削除しました');
+}
+
+/* ---- 時給 ---- */
+function saveWage(){
+  wage = Number(document.getElementById('wage').value) || 0;
+  store.set(WKEY, wage); render();
+}
+
+/* ---- CSV ---- */
+function exportCsv(){
+  const pid = document.getElementById('ym').value;
+  const pr  = periodRange(pid);
+  const keys = Object.keys(recs).filter(k=>periodOf(k)===pid).sort();
+  if(!keys.length){ alert('この期間の記録がありません'); return; }
+  let mins=0;
+  const rows = [
+    [`対象期間 ${pr.from} 〜 ${pr.to}（20日締め）`],
+    [`支給日 ${pr.payLabel}`],
+    [],
+    ['日付','曜日','出勤','休入','休戻','退勤','実働時間','金額']
+  ];
+  keys.forEach(k=>{
+    const r=recs[k], d=new Date(k+'T00:00:00'), m=workMin(r); mins+=m;
+    rows.push([k, WD[d.getDay()], r.in||'', r.bs||'', r.be||'', r.out||'', hm(m), Math.floor(m/60*wage)]);
+  });
+  rows.push([]);
+  rows.push(['合計','','','','','',hm(mins),Math.floor(mins/60*wage)]);
+  rows.push(['時給','',wage]);
+
+  const csv = '﻿' + rows.map(r=>r.join(',')).join('\n');
+  const url = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  const a = document.createElement('a');
+  a.href = url; a.download = `勤怠_${pid}月25日払い.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+
+/* ---- 時計 ---- */
+function tick(){
+  const d = new Date();
+  document.getElementById('clock').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  document.getElementById('today').textContent =
+    `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 (${WD[d.getDay()]})`;
+}
+
+document.getElementById('wage').value = wage;
+fillMonths(); render(); tick();
+setInterval(tick, 10000);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ tick(); render(); } });
+</script>
+</body>
+</html>
