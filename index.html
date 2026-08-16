@@ -213,6 +213,21 @@ button.punch:disabled{background:#D3D1C7;color:#8b8a84;box-shadow:none;cursor:de
   </div>
 
   <div class="card">
+    <h2>
+      <span>年間累計</span>
+      <span class="mrow">
+        <select id="yr" onchange="renderYear()"></select>
+      </span>
+    </h2>
+    <div class="period" id="yearInfo"></div>
+    <div class="sum">
+      <div class="sumbox"><div class="lbl">出勤日数</div><div class="val" id="yDays">0</div></div>
+      <div class="sumbox"><div class="lbl">実働時間</div><div class="val" id="yHours">0:00</div></div>
+      <div class="sumbox pay"><div class="lbl">年間の給与見込み（額面）</div><div class="val" id="yPay">¥0</div></div>
+    </div>
+  </div>
+
+  <div class="card">
     <h2><span>勤務記録</span></h2>
     <div id="list"></div>
   </div>
@@ -226,7 +241,7 @@ button.punch:disabled{background:#D3D1C7;color:#8b8a84;box-shadow:none;cursor:de
   </div>
 
   <div class="wage">
-    時給 <input type="number" id="wage" value="2250" min="0" step="10" onchange="saveWage()"> 円 ／ 20日締め・25日払い<br>
+    時給 <input type="number" id="wage" placeholder="未設定" min="0" step="10" onchange="saveWage()"> 円 ／ 20日締め・25日払い<br>
     休憩は自動で差し引き・1分単位で計算／データはこのスマホの中だけに保存されます
   </div>
 </div>
@@ -296,7 +311,7 @@ const store = {
 };
 let recs = {};
 try { recs = JSON.parse(store.get(KEY) || '{}') || {}; } catch(e) { recs = {}; }
-let wage = Number(store.get(WKEY) || 2250);
+let wage = Number(store.get(WKEY) || 0);   // 初期値は空。初回に画面下で入力してもらう
 let editKey = null;
 const WD = ['日','月','火','水','木','金','土'];
 
@@ -422,6 +437,7 @@ function render(){
   updateStatus();
   renderAlert();
   renderBkHint();
+  renderYear();
   const sel = document.getElementById('ym');
   if(!sel.options.length) fillMonths();
   const pid = sel.value || periodOf(todayKey());
@@ -461,6 +477,43 @@ function render(){
       <button class="dbtn" onclick="openModal('${k}')">修正</button>
     </div>`;
   }).join('');
+}
+
+/* ---- 年間累計 ----
+   年収は「実際に支払われた年」で数えるため、働いた日ではなく
+   支給日（＝期間ID の年）を基準に集計する。
+   例）2025/12/21〜2026/1/20 に働いた分は 2026年1月25日払い → 2026年に計上 */
+function fillYears(){
+  const sel = document.getElementById('yr');
+  const cur = sel.value;
+  const set = new Set(Object.keys(recs).map(k => periodOf(k).slice(0,4)));
+  set.add(periodOf(todayKey()).slice(0,4));
+  const arr = [...set].sort().reverse();
+  sel.innerHTML = arr.map(y => `<option value="${y}">${y}年</option>`).join('');
+  sel.value = (cur && arr.includes(cur)) ? cur : arr[0];
+}
+function renderYear(){
+  const sel = document.getElementById('yr');
+  fillYears();
+  const y = sel.value || periodOf(todayKey()).slice(0,4);
+
+  let days = 0, mins = 0;
+  Object.keys(recs).forEach(k => {
+    if(periodOf(k).slice(0,4) !== y) return;
+    const m = workMin(recs[k]);
+    if(m > 0){ days++; mins += m; }
+  });
+
+  document.getElementById('yDays').textContent  = days;
+  document.getElementById('yHours').textContent = hm(mins);
+  document.getElementById('yPay').textContent   = yen(mins/60*wage);
+
+  const thisYear = periodOf(todayKey()).slice(0,4);
+  document.getElementById('yearInfo').innerHTML =
+    `<b>${y}年1月${PAY_DAY}日払い 〜 ${y}年12月${PAY_DAY}日払い</b>の合計` +
+    `${y === thisYear ? '　※集計中' : ''}` +
+    `<br>年収は支払われた年で数えるため、支給日を基準にしています` +
+    `<br>金額は現在の時給（${yen(wage)}）で計算した概算です`;
 }
 
 /* ---- 打刻もれの検出 ---- */
@@ -574,8 +627,13 @@ function delRecord(){
 
 /* ---- 時給 ---- */
 function saveWage(){
-  wage = Number(document.getElementById('wage').value) || 0;
-  store.set(WKEY, wage); render();
+  const w = document.getElementById('wage');
+  wage = Number(w.value) || 0;
+  store.set(WKEY, wage);
+  w.style.borderColor = wage ? '' : '#EF9F27';
+  w.style.background  = wage ? '' : '#FDF6E9';
+  if(wage) toast(`時給 ${yen(wage)} を設定しました`);
+  render();
 }
 
 /* ---- CSV ---- */
@@ -730,8 +788,15 @@ function tick(){
     `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 (${WD[d.getDay()]})`;
 }
 
-document.getElementById('wage').value = wage;
+document.getElementById('wage').value = wage || '';
 fillMonths(); render(); tick();
+/* 時給が未設定なら、画面下の入力欄に注目してもらう */
+if(!wage){
+  const w = document.getElementById('wage');
+  w.style.borderColor = '#EF9F27';
+  w.style.background  = '#FDF6E9';
+  setTimeout(()=>toast('先に時給を入力してください'), 700);
+}
 setInterval(tick, 10000);
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ tick(); render(); } });
 </script>
