@@ -65,6 +65,7 @@ button.punch:disabled{background:#D3D1C7;color:#8b8a84;box-shadow:none;cursor:de
   padding:8px 10px;margin-bottom:11px;text-align:center;line-height:1.6
 }
 .period b{color:#2C2C2A;font-weight:600}
+.period .nw{white-space:nowrap}
 .sum{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sumbox{background:#F7F6F2;border-radius:10px;padding:12px;text-align:center}
 .sumbox .lbl{font-size:11px;color:#5F5E5A}
@@ -418,18 +419,33 @@ function updateStatus(){
   }
 }
 
-/* ---- 給与期間セレクタ ---- */
+/* ---- 給与期間セレクタ ----
+   記録のない月も選べるよう、連続した期間を並べる（最低でも過去12回分） */
+function periodAdd(pid, n){
+  const [y, m] = pid.split('-').map(Number);
+  const t = y*12 + (m-1) + n;
+  return `${Math.floor(t/12)}-${pad(t%12 + 1)}`;
+}
 function fillMonths(){
   const sel = document.getElementById('ym');
   const cur = sel.value;
-  const set = new Set(Object.keys(recs).map(periodOf));
-  set.add(periodOf(todayKey()));
-  const arr = [...set].sort().reverse();
+  const now = periodOf(todayKey());
+  let min = periodAdd(now, -11), max = now;
+  Object.keys(recs).map(periodOf).forEach(p=>{
+    if(p < min) min = p;
+    if(p > max) max = p;
+  });
+  const arr = [];
+  for(let p = max; p >= min; p = periodAdd(p, -1)) arr.push(p);
+
+  const thisP = now;
   sel.innerHTML = arr.map(p=>{
-    const [y,mo] = p.split('-');
-    return `<option value="${p}">${Number(mo)}月${PAY_DAY}日払い</option>`;
+    const [y, mo] = p.split('-');
+    const has = Object.keys(recs).some(k=>periodOf(k)===p);
+    const tag = p === thisP ? '（今回）' : (has ? '' : '　-');
+    return `<option value="${p}">${y}年${Number(mo)}月${PAY_DAY}日払い${tag}</option>`;
   }).join('');
-  sel.value = (cur && arr.includes(cur)) ? cur : arr[0];
+  sel.value = (cur && arr.includes(cur)) ? cur : thisP;
 }
 
 /* ---- 描画 ---- */
@@ -454,8 +470,10 @@ function render(){
 
   const isNow = pid === periodOf(todayKey());
   document.getElementById('periodInfo').innerHTML =
-    `対象期間 <b>${pr.fromLabel} 〜 ${pr.toLabel}</b>（20日締め）` +
-    `<br>支給日 <b>${pr.payLabel}</b>${isNow ? '　※集計中' : ''}`;
+    `<span class="nw">対象期間 <b>${pr.fromLabel} 〜 ${pr.toLabel}</b></span>` +
+    `<span class="nw">（20日締め）</span>` +
+    `<br><span class="nw">支給日 <b>${pr.payLabel}</b></span>` +
+    (isNow ? `　<span class="nw">※集計中</span>` : '');
 
   const list = document.getElementById('list');
   if(!keys.length){ list.innerHTML = '<div class="empty">この期間の記録はまだありません</div>'; return; }
@@ -486,11 +504,17 @@ function render(){
 function fillYears(){
   const sel = document.getElementById('yr');
   const cur = sel.value;
-  const set = new Set(Object.keys(recs).map(k => periodOf(k).slice(0,4)));
-  set.add(periodOf(todayKey()).slice(0,4));
-  const arr = [...set].sort().reverse();
+  const now = Number(periodOf(todayKey()).slice(0,4));
+  let min = now, max = now;
+  Object.keys(recs).forEach(k=>{
+    const y = Number(periodOf(k).slice(0,4));
+    if(y < min) min = y;
+    if(y > max) max = y;
+  });
+  const arr = [];
+  for(let y = max; y >= min; y--) arr.push(String(y));
   sel.innerHTML = arr.map(y => `<option value="${y}">${y}年</option>`).join('');
-  sel.value = (cur && arr.includes(cur)) ? cur : arr[0];
+  sel.value = (cur && arr.includes(cur)) ? cur : String(now);
 }
 function renderYear(){
   const sel = document.getElementById('yr');
@@ -510,9 +534,10 @@ function renderYear(){
 
   const thisYear = periodOf(todayKey()).slice(0,4);
   document.getElementById('yearInfo').innerHTML =
-    `<b>${y}年1月${PAY_DAY}日払い 〜 ${y}年12月${PAY_DAY}日払い</b>の合計` +
-    `${y === thisYear ? '　※集計中' : ''}` +
-    `<br>年収は支払われた年で数えるため、支給日を基準にしています` +
+    `<b>${y}年の合計</b>` +
+    (y === thisYear ? `　<span class="nw">※集計中</span>` : '') +
+    `<br><span class="nw">${y}年1月${PAY_DAY}日払い</span> 〜 <span class="nw">12月${PAY_DAY}日払い</span>の分` +
+    `<br>年収は支払われた年で数えます（支給日が基準）` +
     (wage
       ? `<br>金額は現在の時給（${yen(wage)}）で計算した概算です`
       : `<br>時給を入力すると金額が表示されます`);
