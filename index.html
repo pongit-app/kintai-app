@@ -163,6 +163,15 @@ button.punch:disabled{background:#D3D1C7;color:#8b8a84;box-shadow:none;cursor:de
 .bkbtn.file{position:relative;overflow:hidden}
 .bkbtn.file input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:100px}
 .bknote{font-size:11px;color:#888780;line-height:1.6;margin-top:2px}
+.drow{border-top:1px solid #EEECE5;padding:9px 0 9px 9px;border-left:3px solid transparent}
+.drow:first-child{border-top:none}
+.drow.d-add{border-left-color:#639922;background:#F7FBF1}
+.drow.d-chg{border-left-color:#EF9F27;background:#FDF9F1}
+.dttl{font-size:13px;font-weight:600}
+.dttl span{font-size:11px;font-weight:400;color:#5F5E5A}
+.dtxt{font-size:12px;color:#2C2C2A;margin-top:3px;font-variant-numeric:tabular-nums}
+.dtxt.old{color:#888780;text-decoration:line-through}
+#dList{max-height:44vh;overflow-y:auto;margin:12px 0}
 #bkText{
   width:100%;height:64px;padding:9px;border:1px solid #D3D1C7;border-radius:8px;
   font-family:inherit;font-size:12px;margin-bottom:8px;resize:vertical;
@@ -297,6 +306,18 @@ button.punch:disabled{background:#D3D1C7;color:#8b8a84;box-shadow:none;cursor:de
 
     <div class="mbtns">
       <button class="m-cancel" onclick="closeBackup()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="dmask" onclick="if(event.target===this)cancelApply()">
+  <div class="modal">
+    <h3>取り込む前の確認</h3>
+    <div class="bkstat" id="dSum"></div>
+    <div id="dList"></div>
+    <div class="mbtns">
+      <button class="m-cancel" onclick="cancelApply()">やめる</button>
+      <button class="m-save" onclick="doApply()">取り込む</button>
     </div>
   </div>
 </div>
@@ -777,12 +798,47 @@ function applyBackup(txt){
   const keys = Object.keys(inc).filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k));
   if(!keys.length){ alert('記録が入っていませんでした。'); return; }
 
-  const dup = keys.filter(k=>recs[k]).length;
-  const msg = `${keys.length}件の記録を読み込みます。` +
-              (dup ? `\n\nうち${dup}件は今ある記録と同じ日付です。読み込んだ内容で上書きされます。` : '') +
-              '\n\nよろしいですか？';
-  if(!confirm(msg)) return;
+  showDiff(keys, inc, data);
+}
 
+/* 取り込む前に、今の記録との違いを見せる */
+let pending = null;
+const fmt = r => [r.in&&'出 '+r.in, r.bs&&'休 '+r.bs, r.be&&'戻 '+r.be, r.out&&'退 '+r.out]
+                 .filter(Boolean).join('　') || '記録なし';
+const same = (a,b) => ['in','bs','be','out'].every(f => (a[f]||'') === (b[f]||''));
+
+function showDiff(keys, inc, data){
+  const add = [], chg = [], eq = [];
+  keys.forEach(k=>{
+    if(!recs[k]) add.push(k);
+    else if(same(recs[k], inc[k])) eq.push(k);
+    else chg.push(k);
+  });
+  pending = {keys, inc, data};
+
+  document.getElementById('dSum').innerHTML =
+    `<b>${add.length}件</b> 追加（入っていなかった日）<br>` +
+    `<b>${chg.length}件</b> 内容が変わる<br>` +
+    `<b>${eq.length}件</b> 変化なし`;
+
+  const row = (k, label, cls, body) => {
+    const d = new Date(k+'T00:00:00');
+    return `<div class="drow ${cls}">
+      <div class="dttl">${d.getMonth()+1}/${d.getDate()}(${WD[d.getDay()]})　<span>${label}</span></div>
+      ${body}</div>`;
+  };
+  let html = '';
+  add.forEach(k => { html += row(k,'追加','d-add', `<div class="dtxt">${fmt(inc[k])}</div>`); });
+  chg.forEach(k => { html += row(k,'変更','d-chg',
+    `<div class="dtxt old">今：${fmt(recs[k])}</div><div class="dtxt">後：${fmt(inc[k])}</div>`); });
+  if(!add.length && !chg.length) html = '<div class="empty">今の記録と同じ内容です</div>';
+  document.getElementById('dList').innerHTML = html;
+  document.getElementById('dmask').classList.add('on');
+}
+function cancelApply(){ pending = null; document.getElementById('dmask').classList.remove('on'); }
+function doApply(){
+  if(!pending) return;
+  const {keys, inc, data} = pending;
   keys.forEach(k=>{ recs[k] = inc[k]; });
   if(typeof data.wage === 'number' && data.wage > 0){
     wage = data.wage;
@@ -790,8 +846,8 @@ function applyBackup(txt){
     document.getElementById('wage').value = wage;
   }
   save(); fillMonths(); render(); showBkStat();
-  closeBackup();
-  toast(`${keys.length}件を復元しました`);
+  cancelApply(); closeBackup();
+  toast(`${keys.length}件を取り込みました`);
 }
 function restoreFile(input){
   const f = input.files && input.files[0];
