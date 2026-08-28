@@ -141,6 +141,26 @@ button.punch:disabled{background:#D3D1C7;color:#8b8a84;box-shadow:none;cursor:de
   font-size:12px;color:#5F5E5A;cursor:pointer;font-family:inherit
 }
 .wage{font-size:11px;color:#888780;text-align:center;margin-top:14px;line-height:1.7}
+/* ---- 設定カード ---- */
+.setrow{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.setrow label{font-size:14px;width:78px;flex-shrink:0}
+.setrow input{
+  flex:1;min-width:0;font-family:inherit;font-size:16px;padding:9px;
+  border:1px solid #D3D1C7;border-radius:8px;background:#fff;color:#2C2C2A
+}
+.setrow .unit{font-size:13px;color:#5F5E5A;flex-shrink:0}
+.setrow .clr{
+  background:#F1EFE8;border:1px solid #E0DED6;border-radius:8px;font-size:12px;
+  padding:8px 11px;color:#5F5E5A;font-family:inherit;cursor:pointer;flex-shrink:0
+}
+.sethint{font-size:11px;color:#888780;line-height:1.6;margin:-3px 0 14px}
+/* ---- 目標と残り ---- */
+.goal{background:#F7F6F2;border-radius:10px;padding:11px;margin-top:10px}
+.goalhd{display:flex;justify-content:space-between;font-size:12px;color:#5F5E5A;margin-bottom:7px}
+.goalhd b{color:#2C2C2A;font-weight:600;font-variant-numeric:tabular-nums}
+.bar{height:8px;background:#E5E3DC;border-radius:4px;overflow:hidden}
+.bar>i{display:block;height:100%;background:#0F6E56;border-radius:4px}
+.bar>i.done{background:#639922}
 .wage input{
   font-family:inherit;font-size:11px;width:66px;padding:3px 5px;border:1px solid #D3D1C7;
   border-radius:6px;text-align:right;color:#2C2C2A
@@ -220,6 +240,13 @@ button.punch:disabled{background:#D3D1C7;color:#8b8a84;box-shadow:none;cursor:de
       <div class="sumbox"><div class="lbl">実働時間</div><div class="val" id="sHours">0:00</div></div>
       <div class="sumbox pay"><div class="lbl" id="payLbl">給与見込み（額面）</div><div class="val" id="sPay">¥0</div></div>
     </div>
+    <div class="goal" id="goalBox" style="display:none">
+      <div class="goalhd">
+        <span>目標 <b id="gTarget">0:00</b></span>
+        <span id="gRest"></span>
+      </div>
+      <div class="bar"><i id="gBar" style="width:0%"></i></div>
+    </div>
   </div>
 
   <div class="card">
@@ -250,9 +277,30 @@ button.punch:disabled{background:#D3D1C7;color:#8b8a84;box-shadow:none;cursor:de
     <button onclick="openBackup()" id="bkBtn">🛟 バックアップ / 復元</button>
   </div>
 
+  <div class="card">
+    <h2><span>設定</span></h2>
+    <div class="setrow">
+      <label for="wage">時給</label>
+      <input type="number" id="wage" placeholder="未設定" min="0" step="10" onchange="saveWage()">
+      <span class="unit">円</span>
+    </div>
+    <div class="setrow">
+      <label for="startT">始業時刻</label>
+      <input type="time" id="startT" onchange="saveStart()">
+      <button class="clr" onclick="clearStart()">クリア</button>
+    </div>
+    <div class="sethint">早く出勤しても、この時刻からの計算になります（遅刻した日は実際の打刻から）。空欄なら打刻どおりに計算します。</div>
+    <div class="setrow">
+      <label for="goalH">月の目標</label>
+      <input type="number" id="goalH" placeholder="未設定" min="0" step="1" onchange="saveGoal()">
+      <span class="unit">時間</span>
+    </div>
+    <div class="sethint">20日締めの期間ごとの目標です。給与集計に残り時間が出ます。</div>
+  </div>
+
   <div class="wage">
-    時給 <input type="number" id="wage" placeholder="未設定" min="0" step="10" onchange="saveWage()"> 円 ／ 20日締め・25日払い<br>
-    休憩は自動で差し引き・1分単位で計算／データはこのスマホの中だけに保存されます
+    20日締め・25日払い／休憩は自動で差し引き・1分単位で計算<br>
+    データはこのスマホの中だけに保存されます
   </div>
 </div>
 
@@ -333,7 +381,10 @@ const store = {
 };
 let recs = {};
 try { recs = JSON.parse(store.get(KEY) || '{}') || {}; } catch(e) { recs = {}; }
-let wage = Number(store.get(WKEY) || 0);   // 初期値は空。初回に画面下で入力してもらう
+let wage = Number(store.get(WKEY) || 0);   // 初期値は空。初回に設定カードで入力してもらう
+const SKEY='kintai_start_v1', GKEY='kintai_goal_v1';
+let startTime = store.get(SKEY) || '';     // 始業時刻（例 08:40）。空なら打刻どおり
+let goalH     = Number(store.get(GKEY) || 0); // 月の目標時間
 let editKey = null;
 const WD = ['日','月','火','水','木','金','土'];
 
@@ -353,11 +404,24 @@ function toast(msg){
   clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('on'), 1900);
 }
 
+const toMin = s => { const [h,i] = s.split(':').map(Number); return h*60+i; };
+
+/* 始業時刻より早く来ても、その時刻からの計算になる（早く来た分は付かない）。
+   遅刻した場合は実際の打刻から数える。戻り値は計算に使う出勤時刻。 */
+function effIn(r){
+  if(!r || !r.in) return null;
+  if(!startTime) return r.in;
+  const inM = toMin(r.in), sM = toMin(startTime);
+  if(inM >= sM) return r.in;                       // 始業以降の出勤はそのまま
+  if(r.out && toMin(r.out) > inM && sM >= toMin(r.out)) return r.in; // 始業前に退勤する日は触らない
+  return startTime;
+}
+
 /* 実働分数（休憩を差し引き・日またぎ対応） */
 function workMin(r){
   if(!r || !r.in || !r.out) return 0;
-  const m = s => { const [h,i] = s.split(':').map(Number); return h*60+i; };
-  let inM = m(r.in), outM = m(r.out);
+  const m = toMin;
+  let inM = m(effIn(r)), outM = m(r.out);
   if(outM < inM) outM += 1440;            // 日またぎ
   let total = outM - inM;
   if(r.bs && r.be){
@@ -489,6 +553,22 @@ function render(){
   document.getElementById('sPay').textContent   = yen(mins/60*wage);
   document.getElementById('payLbl').textContent = `${pr.payLabel}の給与見込み（額面）`;
 
+  /* 目標と残り時間 */
+  const gb = document.getElementById('goalBox');
+  if(goalH > 0){
+    gb.style.display = 'block';
+    const target = goalH * 60, rest = target - mins;
+    document.getElementById('gTarget').textContent = hm(target);
+    document.getElementById('gRest').innerHTML = rest > 0
+      ? `残り <b>${hm(rest)}</b>`
+      : `<b style="color:#3B6D11">達成</b>（+${hm(-rest)}）`;
+    const bar = document.getElementById('gBar');
+    bar.style.width = Math.min(100, Math.round(mins / target * 100)) + '%';
+    bar.className = rest > 0 ? '' : 'done';
+  } else {
+    gb.style.display = 'none';
+  }
+
   const isNow = pid === periodOf(todayKey());
   document.getElementById('periodInfo').innerHTML =
     `<span class="nw">対象期間 <b>${pr.fromLabel} 〜 ${pr.toLabel}</b></span>` +
@@ -502,7 +582,10 @@ function render(){
   list.innerHTML = keys.map(k=>{
     const r = recs[k], d = new Date(k+'T00:00:00'), m = workMin(r);
     const parts = [];
-    if(r.in)  parts.push('出 '+r.in);
+    if(r.in){
+      const e = effIn(r);
+      parts.push('出 ' + r.in + (e !== r.in ? `<span style="color:#185FA5">→${e}</span>` : ''));
+    }
     if(r.bs)  parts.push('休 '+r.bs);
     if(r.be)  parts.push('戻 '+r.be);
     if(r.out) parts.push('退 '+r.out);
@@ -683,6 +766,22 @@ function saveWage(){
   if(wage) toast(`時給 ${yen(wage)} を設定しました`);
   render();
 }
+function saveStart(){
+  startTime = document.getElementById('startT').value || '';
+  store.set(SKEY, startTime);
+  toast(startTime ? `始業 ${startTime} で計算します` : '打刻どおりに計算します');
+  render();
+}
+function clearStart(){
+  document.getElementById('startT').value = '';
+  saveStart();
+}
+function saveGoal(){
+  goalH = Number(document.getElementById('goalH').value) || 0;
+  store.set(GKEY, goalH);
+  if(goalH) toast(`目標 ${goalH}時間 を設定しました`);
+  render();
+}
 
 /* ---- CSV ---- */
 function exportCsv(){
@@ -720,7 +819,7 @@ function backupData(){
   return JSON.stringify({
     app:'kintai', version:1,
     exportedAt:new Date().toISOString(),
-    wage:wage, records:recs
+    wage:wage, startTime:startTime, goalH:goalH, records:recs
   });
 }
 function markBackup(){
@@ -845,6 +944,16 @@ function doApply(){
     store.set(WKEY, wage);
     document.getElementById('wage').value = wage;
   }
+  if(typeof data.startTime === 'string' && /^\d{2}:\d{2}$/.test(data.startTime)){
+    startTime = data.startTime;
+    store.set(SKEY, startTime);
+    document.getElementById('startT').value = startTime;
+  }
+  if(typeof data.goalH === 'number' && data.goalH > 0){
+    goalH = data.goalH;
+    store.set(GKEY, goalH);
+    document.getElementById('goalH').value = goalH;
+  }
   save(); fillMonths(); render(); showBkStat();
   cancelApply(); closeBackup();
   toast(`${keys.length}件を取り込みました`);
@@ -871,7 +980,9 @@ function tick(){
     `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 (${WD[d.getDay()]})`;
 }
 
-document.getElementById('wage').value = wage || '';
+document.getElementById('wage').value   = wage || '';
+document.getElementById('startT').value = startTime;
+document.getElementById('goalH').value  = goalH || '';
 fillMonths(); render(); tick();
 /* 時給が未設定なら、画面下の入力欄に注目してもらう */
 if(!wage){
