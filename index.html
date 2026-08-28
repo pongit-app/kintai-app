@@ -383,7 +383,7 @@ let recs = {};
 try { recs = JSON.parse(store.get(KEY) || '{}') || {}; } catch(e) { recs = {}; }
 let wage = Number(store.get(WKEY) || 0);   // 初期値は空。初回に設定カードで入力してもらう
 const SKEY='kintai_start_v1', GKEY='kintai_goal_v1';
-let startTime = store.get(SKEY) || '';     // 始業時刻（例 08:40）。空なら打刻どおり
+let startTime = store.get(SKEY) || '';     // 始業時刻（例 09:00）。空なら打刻どおり
 let goalH     = Number(store.get(GKEY) || 0); // 月の目標時間
 let editKey = null;
 const WD = ['日','月','火','水','木','金','土'];
