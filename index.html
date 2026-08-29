@@ -158,6 +158,7 @@ button.punch:disabled{background:#D3D1C7;color:#8b8a84;box-shadow:none;cursor:de
 .goal{background:#F7F6F2;border-radius:10px;padding:11px;margin-top:10px}
 .goalhd{display:flex;justify-content:space-between;font-size:12px;color:#5F5E5A;margin-bottom:7px}
 .goalhd b{color:#2C2C2A;font-weight:600;font-variant-numeric:tabular-nums}
+.goalhd .gpay{color:#0F6E56;font-weight:600;font-variant-numeric:tabular-nums}
 .bar{height:8px;background:#E5E3DC;border-radius:4px;overflow:hidden}
 .bar>i{display:block;height:100%;background:#0F6E56;border-radius:4px}
 .bar>i.done{background:#639922}
@@ -242,7 +243,7 @@ button.punch:disabled{background:#D3D1C7;color:#8b8a84;box-shadow:none;cursor:de
     </div>
     <div class="goal" id="goalBox" style="display:none">
       <div class="goalhd">
-        <span>目標 <b id="gTarget">0:00</b></span>
+        <span>目標 <b id="gTarget">0:00</b><span id="gPay" class="gpay"></span></span>
         <span id="gRest"></span>
       </div>
       <div class="bar"><i id="gBar" style="width:0%"></i></div>
@@ -559,6 +560,7 @@ function render(){
     gb.style.display = 'block';
     const target = goalH * 60, rest = target - mins;
     document.getElementById('gTarget').textContent = hm(target);
+    document.getElementById('gPay').textContent = wage ? `　${yen(goalH * wage)}` : '';
     document.getElementById('gRest').innerHTML = rest > 0
       ? `残り <b>${hm(rest)}</b>`
       : `<b style="color:#3B6D11">達成</b>（+${hm(-rest)}）`;
